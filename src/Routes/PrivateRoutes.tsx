@@ -15,6 +15,14 @@ export default function privateRoutes() {
                   Component: (await import('../pages/comments')).default,
                 }),
               },
+              {
+                path: '/assignments',
+
+                lazy: async () => ({
+                  Component: (await import('../pages/assignments')).default,
+                }),
+              },
+
               
             ],
     }

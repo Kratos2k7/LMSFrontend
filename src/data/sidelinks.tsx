@@ -1,4 +1,4 @@
-import { IconLayoutDashboard } from '@tabler/icons-react'
+import { IconFileStack, IconLayoutDashboard } from '@tabler/icons-react'
 
 export interface NavLink {
   title: string
@@ -17,6 +17,12 @@ export const sidelinks: SideLink[] = [
     label: '',
     href: '/',
     icon: <IconLayoutDashboard size={18} />,
+  },
+  {
+    title: 'Assignments',
+    label: '',
+    href: '/assignments',
+    icon: <IconFileStack size={18} />,
   },
   /* {
     title: 'Tasks',
