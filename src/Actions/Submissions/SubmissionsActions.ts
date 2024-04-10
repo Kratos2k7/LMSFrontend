@@ -4,13 +4,17 @@ const getAllSubmissions = async (data: any) =>
   await http.post(
     `${
       import.meta.env.VITE_LMS_BACKEND_URL
-    }submissions/${data.courseId}/${data.assignmentId}?token=${localStorage.getItem(
-      'token'
-    )}`
+    }submissions/${data.courseId}/${data.assignmentId}?token=${
+      localStorage.getItem('token')
+        ? localStorage.getItem('token')
+        : import.meta.env.TOKEN
+    }`
   )
 const uploadSubmissionsFile = async (data: any, payload: any) => {
   Object.assign(payload, {
-    token: localStorage.getItem('token'),
+    token: localStorage.getItem('token')
+      ? localStorage.getItem('token')
+      : import.meta.env.TOKEN,
   })
   return await http.post(
     `${
@@ -25,7 +29,7 @@ const addSubmissionComment = async (data: any, payload: any) =>
       import.meta.env.VITE_LMS_BACKEND_URL
     }submissions/${data.courseId}/${data.assignmentId}/${data.userId}?token=${localStorage.getItem(
       'token'
-    )}&comment=${payload}`
+    ) ? localStorage.getItem('token') : import.meta.env.TOKEN}&comment=${payload}`
   )
 const addSubmissionGrade = async (data: any, payload: any) =>
   await http.put(
@@ -33,7 +37,7 @@ const addSubmissionGrade = async (data: any, payload: any) =>
       import.meta.env.VITE_LMS_BACKEND_URL
     }submissions/${data.courseId}/${data.assignmentId}/${data.userId}/grade?token=${localStorage.getItem(
       'token'
-    )}&grade=${payload}`
+    ) ? localStorage.getItem('token') : import.meta.env.TOKEN}&grade=${payload}`
   )
 const editSubmissionComment = async (data: any, payload: any) =>
   await http.put(
@@ -41,7 +45,7 @@ const editSubmissionComment = async (data: any, payload: any) =>
       import.meta.env.VITE_LMS_BACKEND_URL
     }submissions/${data.courseId}/${data.assignmentId}/${data.userId}/${data.commentId}?token=${localStorage.getItem(
       'token'
-    )}&comment=${payload}`
+    ) ? localStorage.getItem('token') : import.meta.env.TOKEN}&comment=${payload}`
   )
 const uploadFileSubmissionComment = async (data: any, payload: any) =>
   await http.put(
@@ -49,7 +53,7 @@ const uploadFileSubmissionComment = async (data: any, payload: any) =>
       import.meta.env.VITE_LMS_BACKEND_URL
     }submissions/${data.courseId}/${data.assignmentId}/${data.userId}/upload?token=${localStorage.getItem(
       'token'
-    )}&comment=${payload}`
+    ) ? localStorage.getItem('token') : import.meta.env.TOKEN}&comment=${payload}`
   )
 const deleteSubmissionComment = async (data: any) =>
   await http.delete(
@@ -57,7 +61,7 @@ const deleteSubmissionComment = async (data: any) =>
       import.meta.env.VITE_LMS_BACKEND_URL
     }submissions/${data.courseId}/${data.assignmentId}/${data.submissionId}/${data.commentId}?token=${localStorage.getItem(
       'token'
-    )}`
+    ) ? localStorage.getItem('token') : import.meta.env.TOKEN}`
   )
 
 export {
@@ -67,5 +71,5 @@ export {
   editSubmissionComment,
   uploadSubmissionsFile,
   uploadFileSubmissionComment,
-  addSubmissionGrade
+  addSubmissionGrade,
 }
