@@ -35,17 +35,13 @@ import {
 import {
   getAllAssignments,
   getAllCourses,
-  reportGenerate,
 } from '@/Actions/Assignments/AssignmentsActions'
-import { Drawers } from './Component/Drawer'
-import { getAllSubmissions } from '@/Actions/Submissions/SubmissionsActions'
+import { useNavigate } from 'react-router-dom'
 export default function Dashboard() {
+  const navigate = useNavigate()
   const [assignments, setAssignments] = useState([])
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState<any>({})
-  const [drawerData, setDrawerData] = useState<any>({})
-  const [drawer, setdrawer] = useState<any>(false)
-  const [submissions, setSubmissions] = useState([])
 
   useEffect(() => {
     getAllAssignment()
@@ -71,7 +67,10 @@ export default function Dashboard() {
   }
 
   function handleDrawer(data: any) {
-    setSubmissions([])
+    navigate('/submissions', {
+      state: { courseId: data.course_id, assignmentId: data.id },
+    })
+    /* setSubmissions([])
     setLoading({ drawerSubmission: true })
     setDrawerData(data)
     setdrawer(true)
@@ -86,25 +85,9 @@ export default function Dashboard() {
       .catch((err) => {
         setLoading({ drawerSubmission: false })
         console.log(err)
-      })
+      }) */
   }
 
-  function handleGenerateReport(data: any) {
-    setLoading({ reportLoading: true })
-    reportGenerate(data)
-      .then(({ data }) => {
-        console.log(data)
-        setLoading({ reportLoading: false })
-        const arrayBuffer = new Uint8Array(data.fileContent.data)
-        const blob = new Blob([arrayBuffer], { type: 'application/pdf' })
-        const blobUrl = URL.createObjectURL(blob)
-        window.open(blobUrl, '_blank')
-      })
-      .catch((err) => {
-        setLoading({ reportLoading: false })
-        console.log(err)
-      })
-  }
   return (
     <Layout>
       <LayoutHeader>
@@ -206,15 +189,6 @@ export default function Dashboard() {
             </Table>
           </CardContent>
         </Card>
-        <Drawers
-          setdrawer={setdrawer}
-          drawer={drawer}
-          drawerData={drawerData}
-          setSubmissions={setSubmissions}
-          submissions={submissions}
-          loading={loading}
-          handleGenerateReport={handleGenerateReport}
-        />
         {/* <Dialog open={gradeModal} onOpenChange={setGradeModal}>
           <DialogContent className='sm:max-w-[425px]'>
             <DialogHeader>

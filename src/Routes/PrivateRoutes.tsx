@@ -22,6 +22,13 @@ export default function privateRoutes() {
                   Component: (await import('../pages/assignments')).default,
                 }),
               },
+              {
+                path: '/submissions',
+
+                lazy: async () => ({
+                  Component: (await import('../pages/submissions')).default,
+                }),
+              },
 
               
             ],
