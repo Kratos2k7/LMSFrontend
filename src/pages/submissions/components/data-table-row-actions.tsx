@@ -31,7 +31,7 @@ export function DataTableRowActions<TData>({
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end' className='w-[160px]'>
         <DropdownMenuItem onClick={() => handleGenerateReport([row])}>
-          Generate Report
+          See Report
         </DropdownMenuItem>
         {row.getValue('grade') ? null : (
           <DropdownMenuItem onClick={() => handleGradeSubmission(row.original)}>
