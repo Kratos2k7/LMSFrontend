@@ -70,22 +70,6 @@ export default function Dashboard() {
     navigate('/submissions', {
       state: { courseId: data.course_id, assignmentId: data.id },
     })
-    /* setSubmissions([])
-    setLoading({ drawerSubmission: true })
-    setDrawerData(data)
-    setdrawer(true)
-    getAllSubmissions({
-      courseId: data.course_id,
-      assignmentId: data.id,
-    })
-      .then(({ data: res }) => {
-        setSubmissions(res)
-        setLoading({ drawerSubmission: false })
-      })
-      .catch((err) => {
-        setLoading({ drawerSubmission: false })
-        console.log(err)
-      }) */
   }
 
   return (
