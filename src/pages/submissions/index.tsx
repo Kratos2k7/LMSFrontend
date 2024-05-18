@@ -49,9 +49,9 @@ function Submissions() {
       localStorage.setItem('courseId', values?.courseId)
       localStorage.setItem('assignmentId', values?.assignmentId)
       getAllSubmissions({
-        courseId: values?.courseId ? values?.courseId : '1',
-        assignmentId: values?.assignmentId
-          ? values?.assignmentId
+        courseId: courseId ? courseId : '1',
+        assignmentId: drawerData?.assignment_id
+          ? drawerData?.assignment_id
           : '1',
       })
         .then(({ data: res }) => {
@@ -90,11 +90,12 @@ function Submissions() {
   
     function handleCommentSave() {
       setLoading({ commentSave: true })
-  
+      console.log(drawerData);
+      
       if (isEdit) {
         const data = {
-          courseId: values?.courseId,
-          assignmentId: values?.assignmentId,
+          courseId: courseId,
+          assignmentId: drawerData?.assignment_id,
           userId: drawerData?.user_id,
           commentId: commentData?.id,
         }
@@ -102,8 +103,8 @@ function Submissions() {
           .then(({ data: _res, status }) => {
             if (status === 200) {
               getAllSubmissions({
-                courseId: values?.courseId ? values?.courseId : '1',
-                assignmentId: values?.assignmentId ? values?.assignmentId : '1',
+                courseId: courseId ? courseId : '1',
+                assignmentId: drawerData?.assignment_id ? drawerData?.assignment_id : '1',
               })
                 .then(({ data: res }) => {
                   setSubmissions(res)
@@ -123,16 +124,16 @@ function Submissions() {
           })
       } else {
         const data = {
-          courseId: values?.courseId,
-          assignmentId: values?.assignmentId,
+          courseId: courseId,
+          assignmentId: drawerData?.assignment_id,
           userId: drawerData?.user_id,
         }
         addSubmissionComment(data, comment)
           .then(({ data: _res, status }) => {
             if (status === 200) {
               getAllSubmissions({
-                courseId: values?.courseId ? values?.courseId : '1',
-                assignmentId: values?.assignmentId ? values?.assignmentId : '1',
+                courseId: courseId ? courseId : '1',
+                assignmentId: drawerData?.assignment_id ? drawerData?.assignment_id : '1',
               })
                 .then(({ data: res }) => {
                   setSubmissions(res)
@@ -154,8 +155,8 @@ function Submissions() {
     }
     function handleCommentDelete(comments: any) {
       const data = {
-        courseId: values?.courseId,
-        assignmentId: values?.assignmentId,
+        courseId: courseId,
+        assignmentId: drawerData?.assignment_id,
         submissionId: drawerData?.id,
         commentId: comments?.id,
       }
@@ -163,8 +164,8 @@ function Submissions() {
         .then(({ data: _res, status }) => {
           if (status === 200) {
             getAllSubmissions({
-              courseId: values?.courseId ? values?.courseId : '1',
-              assignmentId: values?.assignmentId ? values?.assignmentId : '1',
+              courseId: courseId ? courseId : '1',
+              assignmentId: drawerData?.assignment_id ? drawerData?.assignment_id : '1',
             })
               .then(({ data: res }) => {
                 setSubmissions(res)
@@ -194,8 +195,8 @@ function Submissions() {
       }
       uploadSubmissionsFile(
         {
-          courseId: values?.courseId,
-          assignmentId: values?.assignmentId,
+          courseId: courseId,
+          assignmentId: drawerData?.assignment_id,
           userId: drawerData?.user_id,
         },
         payload
@@ -218,17 +219,17 @@ function Submissions() {
             .then((res) => {
               uploadFileSubmissionComment(
                 {
-                  courseId: values?.courseId,
-                  assignmentId: values?.assignmentId,
+                  courseId: courseId,
+                  assignmentId: drawerData?.assignment_id,
                   userId: drawerData?.user_id,
                 },
                 res?.data?.id
               ).then(({ data: _res, status }) => {
                 if (status === 200) {
                   getAllSubmissions({
-                    courseId: values?.courseId ? values?.courseId : '1',
-                    assignmentId: values?.assignmentId
-                      ? values?.assignmentId
+                    courseId: courseId ? courseId : '1',
+                    assignmentId: drawerData?.assignment_id
+                      ? drawerData?.assignment_id
                       : '1',
                   })
                     .then(({ data: res }) => {
@@ -263,16 +264,16 @@ function Submissions() {
     function handleGradeSave() {
       setLoading({ gradeLoading: true })
       const data = {
-        courseId: values?.courseId,
-        assignmentId: values?.assignmentId,
+        courseId: courseId,
+        assignmentId: drawerData?.assignment_id,
         userId: drawerData?.user_id,
       }
       addSubmissionGrade(data, grade)
         .then(({ data: _res, status }) => {
           if (status === 200) {
             getAllSubmissions({
-              courseId: values?.courseId ? values?.courseId : '1',
-              assignmentId: values?.assignmentId ? values?.assignmentId : '1',
+              courseId: courseId ? courseId : '1',
+              assignmentId: drawerData?.assignment_id ? drawerData?.assignment_id : '1',
             })
               .then(({ data: res }) => {
                 setSubmissions(res)
