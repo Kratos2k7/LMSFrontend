@@ -90,7 +90,7 @@ export const columns: ColumnDef<any>[] = [
     ),
     cell: ({ row }) => (
       <div className='w-[80px]'>
-        {moment(row.original.submitted_at).format('LTS')}
+        {row.original.submitted_at ? moment(row.original.submitted_at).format('LTS'):"N/A"}
       </div>
     ),
     enableSorting: false,

@@ -1,7 +1,9 @@
+/* eslint-disable no-prototype-builtins */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react'
 import { reportGenerate } from '@/Actions/Assignments/AssignmentsActions'
-import { addSubmissionGrade, getAllSubmissions } from '@/Actions/Submissions/SubmissionsActions'
+import { addSubmissionComment, addSubmissionGrade, deleteSubmissionComment, editSubmissionComment, getAllSubmissions, uploadFileSubmissionComment, uploadSubmissionsFile } from '@/Actions/Submissions/SubmissionsActions'
 import { useLocation } from 'react-router-dom'
 import { Layout, LayoutBody, LayoutHeader } from '@/components/custom/layout'
 import { TopNav } from '@/components/top-nav'
@@ -13,6 +15,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/custom/button'
+import Modals from '../comments/Component/Modal'
+import Drawers from '../comments/Component/Drawer'
+import axios from 'axios'
 
 function Submissions() {
   const location = useLocation()
@@ -24,6 +29,267 @@ function Submissions() {
   const [drawerData, setDrawerData] = useState<any>({})
     const [gradeModal, setGradeModal] = useState(false)
     const [grade, setGrade] = useState('')
+    const [commentData, setCommentData] = useState<any>({})
+    const [comment, setComment] = useState<any>('')
+    const [modal, setModal] = useState(false)
+    const [drawer, setDrawer] = useState(false)
+    const [commentEditModal, setCommentEditModal] = useState(false)
+    const [isEdit, setIsEdit] = useState(false)
+    const [file, setFile] = useState<any>(null)
+    const [values, setValues] = useState<any>({
+      courseId:  '',
+      assignmentId: '',
+    })
+    function handleChange(e: any) {
+      setValues({ ...values, [e.target.name]: e.target.value })
+    }
+  
+    async function handleSubmit() {
+      setLoading({ idAssignLoader: true })
+      localStorage.setItem('courseId', values?.courseId)
+      localStorage.setItem('assignmentId', values?.assignmentId)
+      getAllSubmissions({
+        courseId: values?.courseId ? values?.courseId : '1',
+        assignmentId: values?.assignmentId
+          ? values?.assignmentId
+          : '1',
+      })
+        .then(({ data: res }) => {
+          setSubmissions(res)
+          setLoading({ idAssignLoader: false })
+          setModal(false)
+        })
+        .catch((err) => {
+          setLoading({ idAssignLoader: false })
+          console.log(err)
+        })
+    }
+  
+    function handleDrawer(e: { target: any },data: any) {
+      if (e.target.role !== 'menuitem' && e.target.role !== 'checkbox') {
+        setDrawer(true)
+        setDrawerData(data)
+      }
+    }
+  
+    function handleEditComment(comment?: any, edit?: any) {
+      if (edit) {
+        setCommentData(comment)
+        setIsEdit(true)
+        setComment(comment?.comment ? comment?.comment : '')
+      } else {
+        setIsEdit(false)
+        setComment('')
+      }
+      setCommentEditModal(true)
+    }
+  
+    function handleCommentChange(e: any) {
+      setComment(e.target.value)
+    }
+  
+    function handleCommentSave() {
+      setLoading({ commentSave: true })
+  
+      if (isEdit) {
+        const data = {
+          courseId: values?.courseId,
+          assignmentId: values?.assignmentId,
+          userId: drawerData?.user_id,
+          commentId: commentData?.id,
+        }
+        editSubmissionComment(data, comment)
+          .then(({ data: _res, status }) => {
+            if (status === 200) {
+              getAllSubmissions({
+                courseId: values?.courseId ? values?.courseId : '1',
+                assignmentId: values?.assignmentId ? values?.assignmentId : '1',
+              })
+                .then(({ data: res }) => {
+                  setSubmissions(res)
+                  setLoading({ commentSave: false })
+                  setCommentEditModal(false)
+                  setDrawer(false)
+                })
+                .catch((err) => {
+                  setLoading({ commentSave: false })
+                  console.log(err)
+                })
+            }
+          })
+          .catch((err) => {
+            setLoading({ commentSave: false })
+            console.log(err)
+          })
+      } else {
+        const data = {
+          courseId: values?.courseId,
+          assignmentId: values?.assignmentId,
+          userId: drawerData?.user_id,
+        }
+        addSubmissionComment(data, comment)
+          .then(({ data: _res, status }) => {
+            if (status === 200) {
+              getAllSubmissions({
+                courseId: values?.courseId ? values?.courseId : '1',
+                assignmentId: values?.assignmentId ? values?.assignmentId : '1',
+              })
+                .then(({ data: res }) => {
+                  setSubmissions(res)
+                  setLoading({ commentSave: false })
+                  setCommentEditModal(false)
+                  setDrawer(false)
+                })
+                .catch((err) => {
+                  setLoading({ commentSave: false })
+                  console.log(err)
+                })
+            }
+          })
+          .catch((err) => {
+            setLoading({ commentSave: false })
+            console.log(err)
+          })
+      }
+    }
+    function handleCommentDelete(comments: any) {
+      const data = {
+        courseId: values?.courseId,
+        assignmentId: values?.assignmentId,
+        submissionId: drawerData?.id,
+        commentId: comments?.id,
+      }
+      deleteSubmissionComment(data)
+        .then(({ data: _res, status }) => {
+          if (status === 200) {
+            getAllSubmissions({
+              courseId: values?.courseId ? values?.courseId : '1',
+              assignmentId: values?.assignmentId ? values?.assignmentId : '1',
+            })
+              .then(({ data: res }) => {
+                setSubmissions(res)
+                setCommentEditModal(false)
+                setDrawer(false)
+              })
+              .catch((err) => {
+                console.log(err)
+              })
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    }
+  
+    function handleFileChange(e: any) {
+      setFile(e.target.files[0])
+    }
+  
+    function onSubmit() {
+      setLoading({ fileLoaders: true })
+      const payload = {
+        name: file?.name,
+        size: file?.size,
+        content_type: file?.type,
+      }
+      uploadSubmissionsFile(
+        {
+          courseId: values?.courseId,
+          assignmentId: values?.assignmentId,
+          userId: drawerData?.user_id,
+        },
+        payload
+      )
+        .then(({ data: res, status }) => {
+          if (status === 200) {
+            return res
+          }
+        })
+        .then((res) => {
+          const formData = new FormData()
+          for (const key in res?.upload_params) {
+            if (res?.upload_params.hasOwnProperty(key)) {
+              formData.append(key, res?.upload_params[key])
+            }
+          }
+          formData.append('file', file)
+          axios
+            .post(res?.upload_url, formData)
+            .then((res) => {
+              uploadFileSubmissionComment(
+                {
+                  courseId: values?.courseId,
+                  assignmentId: values?.assignmentId,
+                  userId: drawerData?.user_id,
+                },
+                res?.data?.id
+              ).then(({ data: _res, status }) => {
+                if (status === 200) {
+                  getAllSubmissions({
+                    courseId: values?.courseId ? values?.courseId : '1',
+                    assignmentId: values?.assignmentId
+                      ? values?.assignmentId
+                      : '1',
+                  })
+                    .then(({ data: res }) => {
+                      setLoading({ fileLoaders: false })
+  
+                      setSubmissions(res)
+                      setCommentEditModal(false)
+                      setDrawer(false)
+                    })
+                    .catch((err) => {
+                      setLoading({ fileLoaders: false })
+                      console.log(err)
+                    })
+                }
+              })
+            })
+            .catch((err) => {
+              setLoading({ fileLoaders: false })
+              console.log(err)
+            })
+        })
+        .catch((err) => {
+          setLoading({ fileLoaders: false })
+          console.log(err)
+        })
+    }
+  
+    function handleGradeChange(e: any) {
+      setGrade(e.target.value)
+    }
+  
+    function handleGradeSave() {
+      setLoading({ gradeLoading: true })
+      const data = {
+        courseId: values?.courseId,
+        assignmentId: values?.assignmentId,
+        userId: drawerData?.user_id,
+      }
+      addSubmissionGrade(data, grade)
+        .then(({ data: _res, status }) => {
+          if (status === 200) {
+            getAllSubmissions({
+              courseId: values?.courseId ? values?.courseId : '1',
+              assignmentId: values?.assignmentId ? values?.assignmentId : '1',
+            })
+              .then(({ data: res }) => {
+                setSubmissions(res)
+                setLoading({ gradeLoading: false })
+                setGradeModal(false)
+              })
+              .catch((err) => {
+                setLoading({ gradeLoading: false })
+                console.log(err)
+              })
+          }
+        })
+        .catch((err) => {
+          setLoading({ gradeLoading: false })
+          console.log(err)
+        })
+    }
 
   useEffect(() => {
     getSubmissions()
@@ -55,8 +321,6 @@ function Submissions() {
   function handleGradeSubmission(data: any) {
     setGradeModal(true)
     setDrawerData(data)
-    console.log(data);
-    
     setGrade(data?.grade ? data?.grade : '')
   }
 
@@ -67,7 +331,6 @@ function Submissions() {
       payload: reqData,
     })
       .then(({ data }) => {
-        console.log(data)
         setLoading({ reportLoading: false })
 
         data.generatedFiles.forEach(
@@ -83,30 +346,6 @@ function Submissions() {
         setLoading({ reportLoading: false })
         console.log(err)
       })
-  }
-
-  function handleGradeSave() {
-    setLoading({ gradeLoading: true })
-    const data = {
-      courseId: courseId,
-      assignmentId: assignmentId,
-      userId: drawerData?.user_id,
-    }
-    addSubmissionGrade(data, grade)
-      .then(({ data: _res, status }) => {
-        if (status === 200 && _res) {
-            setLoading({ gradeLoading: false })
-            setGradeModal(false)
-            getSubmissions()
-        }
-      })
-      .catch((err) => {
-        setLoading({ gradeLoading: false })
-        console.log(err)
-      })
-  }
-  function handleGradeChange(e: any) {
-    setGrade(e.target.value)
   }
   return (
     <div>
@@ -126,6 +365,7 @@ function Submissions() {
               columns={columns}
               handleReports={handleGenerateReport}
               loading={loading}
+              handleDrawer={handleDrawer}
             />
           </div>
         </LayoutBody>
@@ -163,6 +403,28 @@ function Submissions() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        <Modals
+          modal={modal}
+          setModal={setModal}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          loading={loading}
+        />
+        <Drawers
+          drawer={drawer}
+          setDrawer={setDrawer}
+          handleEditComment={handleEditComment}
+          drawerData={drawerData}
+          comment={comment}
+          handleCommentDelete={handleCommentDelete}
+          commentEditModal={commentEditModal}
+          setCommentEditModal={setCommentEditModal}
+          handleCommentChange={handleCommentChange}
+          handleCommentSave={handleCommentSave}
+          handleFileChange={handleFileChange}
+          onSubmit={onSubmit}
+          loading={loading}
+        />
     </div>
   )
 }

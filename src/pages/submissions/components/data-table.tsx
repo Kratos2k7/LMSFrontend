@@ -31,8 +31,9 @@ import {
 import { DataTablePagination } from '../components/data-table-pagination'
 import { Icons } from '@/components/loading'
 import { Button } from '@/components/custom/button'
+import { Input } from '@/components/ui/input'
 
-export function DataTable({ columns, data, handleReports,loading }: any) {
+export function DataTable({ columns, data, handleReports,loading,handleDrawer }: any) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
@@ -62,17 +63,21 @@ export function DataTable({ columns, data, handleReports,loading }: any) {
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
-
   return (
     <div className='space-y-4'>
       <Card className='w-full'>
-        <div className='grid grid-cols-2'>
-          <div>
+        <div className='grid grid-cols-6 '>
+          <div className='col-span-4'>
             <CardHeader>
               <CardTitle>Submissions Details</CardTitle>
               <CardDescription>
                 View the details of the Submissions.
               </CardDescription>
+            </CardHeader>
+          </div>
+          <div className=''>
+            <CardHeader>
+            <Input type="text" placeholder="Assessment Tag" className='w-full' />
             </CardHeader>
           </div>
           <div className='text-right'>
@@ -92,6 +97,7 @@ export function DataTable({ columns, data, handleReports,loading }: any) {
                 </Button>
               </CardTitle>
             </CardHeader>
+            
           </div>
         </div>
         <CardContent>
@@ -121,6 +127,8 @@ export function DataTable({ columns, data, handleReports,loading }: any) {
                     <TableRow
                       key={row.id}
                       data-state={row.getIsSelected() && 'selected'}
+                      onClick={(e) => handleDrawer(e,row.original)}
+                      className='cursor-pointer'
                     >
                       {row.getVisibleCells().map((cell) => {
                         return (
